@@ -4,21 +4,19 @@ import {
   GetGen,
   MaybePromise,
   MiddlewareFn,
-} from 'nexus/dist/core';
-import { ValidationError } from 'yup';
+} from "nexus/dist/core";
 
-import { ObjectShape, rules, ValidationRules } from './rules';
-import { ValidatePluginConfig } from './index';
-import { defaultFormatError } from './error';
+import { ValidatePluginConfig } from "./index";
+import { defaultFormatError } from "./error";
+import { z, ZodRawShape } from "zod";
 
 export type ValidateResolver<
   TypeName extends string,
-  FieldName extends string
+  FieldName extends string,
 > = (
-  rules: ValidationRules,
   args: ArgsValue<TypeName, FieldName>,
-  ctx: GetGen<'context'>
-) => MaybePromise<ObjectShape | void>;
+  ctx: GetGen<"context">
+) => MaybePromise<ZodRawShape | void>;
 
 export const resolver =
   (validateConfig: ValidatePluginConfig = {}) =>
@@ -34,42 +32,43 @@ export const resolver =
       return;
     }
 
-    // if it does have this field, but it's not a function,
-    // it's wrong - let's provide a warning
-    if (typeof validate !== 'function') {
+    if (typeof validate !== "function") {
       console.error(
-        '\x1b[33m%s\x1b[0m',
+        "\x1b[33m%s\x1b[0m",
         `The validate property provided to [${
           config.fieldConfig.name
         }] with type [${
           config.fieldConfig.type
         }]. Should be a function, saw [${typeof validate}]`
       );
+
       return;
     }
 
     const args = config?.fieldConfig?.args ?? {};
     if (Object.keys(args).length === 0) {
       console.error(
-        '\x1b[33m%s\x1b[0m',
+        "\x1b[33m%s\x1b[0m",
         `[${config.parentTypeConfig.name}.${config.fieldConfig.name}] does not have any arguments, but a validate function was passed`
       );
     }
 
     return async (root, rawArgs, ctx, info, next) => {
-      try {
-        const schemaBase = await validate(rules, rawArgs, ctx);
-        // clone args so we can transform them when validating with yup
-        let args = { ...rawArgs };
-        if (typeof schemaBase !== 'undefined') {
-          const schema = rules.object().shape(schemaBase);
-          // update args to the transformed ones by yup
-          args = await schema.validate(args, { context: ctx });
+      const schemaBase = await validate(rawArgs, ctx);
+      // clone args so we can transform them when validating with yup
+      let args = { ...rawArgs };
+      if (typeof schemaBase !== "undefined") {
+        const schema = z.object(schemaBase);
+        // update args to the transformed ones by yup
+        const parseResult = schema.safeParse(args);
+
+        if (!parseResult.success) {
+          throw formatError({ error: parseResult.error, args, ctx });
         }
-        return next(root, args, ctx, info);
-      } catch (_error) {
-        const error = _error as Error | ValidationError;
-        throw formatError({ error, args, ctx });
+
+        args = parseResult.data;
       }
+
+      return next(root, args, ctx, info);
     };
   };

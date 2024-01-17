@@ -1,10 +1,10 @@
-import { GetGen } from 'nexus/dist/core';
-import { ValidationError } from 'yup';
+import { GetGen } from "nexus/dist/core";
+import { ZodError } from "zod";
 
 export interface ValidatePluginErrorConfig {
-  error: Error | ValidationError;
+  error: Error | ZodError;
   args: any;
-  ctx: GetGen<'context'>;
+  ctx: GetGen<"context">;
 }
 
 export class UserInputError extends Error {
@@ -21,9 +21,10 @@ export class UserInputError extends Error {
     }
   ) {
     super(message);
+
     this.extensions = {
       ...extensions,
-      code: extensions.code || 'BAD_USER_INPUT',
+      code: extensions.code || "BAD_USER_INPUT",
     };
   }
 }
@@ -31,13 +32,11 @@ export class UserInputError extends Error {
 export const defaultFormatError = ({
   error,
 }: ValidatePluginErrorConfig): Error => {
-  if (error instanceof ValidationError) {
-    return new UserInputError(error.message, {
-      invalidArgs: error.path ? [error.path] : [],
+  if (error instanceof ZodError) {
+    return new UserInputError(error.errors[0].message, {
+      invalidArgs: error.errors[0].path.map((value) => String(value)),
     });
   }
 
   return error;
 };
-
-export { ValidationError };

@@ -40,3 +40,5 @@ export const defaultFormatError = ({
 
   return error;
 };
+
+export { ZodError };

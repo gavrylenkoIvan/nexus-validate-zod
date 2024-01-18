@@ -23,8 +23,8 @@ export interface ValidatePluginConfig {
 
 export const validatePlugin = (validateConfig: ValidatePluginConfig = {}) => {
   return plugin({
-    name: "NexusValidate",
-    description: "The validate plugin provides validation for arguments.",
+    name: "NexusValidateZod",
+    description: "The validate plugin provides zod validation for arguments.",
     fieldDefTypes: fieldDefTypes,
     onCreateFieldResolver: resolver(validateConfig),
   });

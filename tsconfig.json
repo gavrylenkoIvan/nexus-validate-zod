@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2015", "DOM"]
+    "lib": ["ES2015", "DOM", "ES2019"]
   },
   "exclude": ["examples", "dist", "tests"]
 }

@@ -29,8 +29,10 @@ describe("validatePlugin", () => {
       // @ts-ignore
       validate: (args, ctx) => {
         if (args.id !== ctx.user.id) {
-          throw new UserInputError("invalid id", {
-            invalidArgs: ["id"],
+          throw new UserInputError("Validation failed", {
+            validationErrors: {
+              id: "invalid id",
+            },
           });
         }
 
@@ -112,8 +114,9 @@ describe("validatePlugin", () => {
     expect(errors[0].message).toEqual("Validation failed");
     expect(errors[0].extensions).toEqual({
       code: "BAD_USER_INPUT",
-      invalidArgs: ["email"],
-      validationMessages: ["Invalid email"],
+      validationErrors: {
+        email: "Invalid email",
+      },
     });
   });
 
@@ -132,10 +135,12 @@ describe("validatePlugin", () => {
 
     expect(data).toBeNull();
     expect(errors.length).toEqual(1);
-    expect(errors[0].message).toEqual("invalid id");
+    expect(errors[0].message).toEqual("Validation failed");
     expect(errors[0].extensions).toEqual({
       code: "BAD_USER_INPUT",
-      invalidArgs: ["id"],
+      validationErrors: {
+        id: "invalid id",
+      },
     });
   });
 
@@ -181,8 +186,9 @@ describe("validatePlugin", () => {
     expect(errors[0].message).toEqual("Validation failed");
     expect(errors[0].extensions).toEqual({
       code: "BAD_USER_INPUT",
-      invalidArgs: ["email"],
-      validationMessages: ["Invalid email"],
+      validationErrors: {
+        email: "Invalid email",
+      },
     });
   });
 

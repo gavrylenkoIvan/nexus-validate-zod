@@ -8,14 +8,13 @@ export interface ValidatePluginErrorConfig {
 }
 
 type UserInputErrorExtensions = {
-  invalidArgs: string[];
-  validationMessages?: string[];
+  validationErrors: Record<string, string>;
   code?: string;
 };
 
 export class UserInputError extends Error {
   extensions: {
-    invalidArgs: string[];
+    validationErrors?: Record<string, string>;
     code: string;
   };
 
@@ -33,9 +32,13 @@ export const defaultFormatError = ({
   error,
 }: ValidatePluginErrorConfig): Error => {
   if (error instanceof ZodError) {
+    const validationErrors: Record<string, string> = {};
+    error.errors.forEach(
+      (err) => (validationErrors[err.path[0]] = err.message)
+    );
+
     return new UserInputError("Validation failed", {
-      invalidArgs: error.errors.flatMap((err) => err.path.toString()),
-      validationMessages: error.errors.flatMap((err) => err.message),
+      validationErrors,
     });
   }
 

@@ -7,19 +7,19 @@ export interface ValidatePluginErrorConfig {
   ctx: GetGen<"context">;
 }
 
+type UserInputErrorExtensions = {
+  invalidArgs: string[];
+  validationMessages?: string[];
+  code?: string;
+};
+
 export class UserInputError extends Error {
   extensions: {
     invalidArgs: string[];
     code: string;
   };
 
-  constructor(
-    message: string,
-    extensions: {
-      invalidArgs: string[];
-      code?: string;
-    }
-  ) {
+  constructor(message: string, extensions: UserInputErrorExtensions) {
     super(message);
 
     this.extensions = {
@@ -33,8 +33,9 @@ export const defaultFormatError = ({
   error,
 }: ValidatePluginErrorConfig): Error => {
   if (error instanceof ZodError) {
-    return new UserInputError(error.errors[0].message, {
-      invalidArgs: error.errors[0].path.map((value) => String(value)),
+    return new UserInputError("Validation failed", {
+      invalidArgs: error.errors.flatMap((err) => err.path.toString()),
+      validationMessages: error.errors.flatMap((err) => err.message),
     });
   }
 

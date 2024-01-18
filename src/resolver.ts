@@ -8,7 +8,7 @@ import {
 
 import { ValidatePluginConfig } from "./index";
 import { defaultFormatError } from "./error";
-import { z, ZodRawShape } from "zod";
+import { ZodTypeAny, z } from "zod";
 
 export type ValidateResolver<
   TypeName extends string,
@@ -16,7 +16,12 @@ export type ValidateResolver<
 > = (
   args: ArgsValue<TypeName, FieldName>,
   ctx: GetGen<"context">
-) => MaybePromise<ZodRawShape | void>;
+) => MaybePromise<
+  | {
+      [K in ArgsValue<TypeName, FieldName>]: ZodTypeAny;
+    }
+  | void
+>;
 
 export const resolver =
   (validateConfig: ValidatePluginConfig = {}) =>
@@ -55,11 +60,10 @@ export const resolver =
 
     return async (root, rawArgs, ctx, info, next) => {
       const schemaBase = await validate(rawArgs, ctx);
-      // clone args so we can transform them when validating with yup
+      // clone args so we can transform them when validating with zod
       let args = { ...rawArgs };
       if (typeof schemaBase !== "undefined") {
         const schema = z.object(schemaBase);
-        // update args to the transformed ones by yup
         const parseResult = schema.safeParse(args);
 
         if (!parseResult.success) {

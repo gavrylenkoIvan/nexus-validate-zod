@@ -16,12 +16,10 @@ export type ValidateResolver<
 > = (
   args: ArgsValue<TypeName, FieldName>,
   ctx: GetGen<"context">
-) => MaybePromise<
-  | {
-      [K in ArgsValue<TypeName, FieldName>]: ZodTypeAny;
-    }
-  | void
->;
+) => MaybePromise<Record<
+  keyof ArgsValue<TypeName, FieldName>,
+  ZodTypeAny
+> | void>;
 
 export const resolver =
   (validateConfig: ValidatePluginConfig = {}) =>

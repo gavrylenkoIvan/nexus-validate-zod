@@ -31,8 +31,8 @@ export const User = objectType({
       args: {
         email: stringArg(),
       },
-      validate: ({ string }) => ({
-        email: string().email(),
+      validate: () => ({
+        email: z.string().email(),
       }),
       resolve: (_, args) => {
         return USERS;

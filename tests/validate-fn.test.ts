@@ -73,12 +73,14 @@ describe("validatePlugin", () => {
     const { data, errors = [] } = await testOperation(
       'validate(email: "bad@email", id: 1)'
     );
+
     expect(data).toBeNull();
     expect(errors.length).toEqual(1);
-    expect(errors[0].message).toEqual("Invalid email");
+    expect(errors[0].message).toEqual("Validation failed");
     expect(errors[0].extensions).toEqual({
       code: "BAD_USER_INPUT",
       invalidArgs: ["email"],
+      validationMessages: ["Invalid email"],
     });
   });
 

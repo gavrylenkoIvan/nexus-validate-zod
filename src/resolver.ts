@@ -63,13 +63,9 @@ export const resolver =
         let args = { ...rawArgs };
         if (typeof schemaBase !== "undefined") {
           const schema = z.object(schemaBase);
-          const parseResult = schema.safeParse(args);
+          const parseResult = schema.parse(args);
 
-          if (!parseResult.success) {
-            throw formatError({ error: parseResult.error, args, ctx });
-          }
-
-          args = parseResult.data;
+          args = parseResult;
         }
 
         return next(root, args, ctx, info);

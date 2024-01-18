@@ -17,10 +17,7 @@ export type ValidationSchema<
   [K in keyof ArgsValue<TypeName, FieldName>]?: ZodTypeAny;
 };
 
-export type ValidateResolver<
-  TypeName extends string,
-  FieldName extends string,
-> =
+export type ValidateProps<TypeName extends string, FieldName extends string> =
   | ValidationSchema<TypeName, FieldName>
   | ((
       args: ArgsValue<TypeName, FieldName>,
@@ -32,7 +29,7 @@ export const resolver =
   (config: CreateFieldResolverInfo): MiddlewareFn | undefined => {
     const { formatError = defaultFormatError } = validateConfig;
 
-    const validate: ValidateResolver<any, any> =
+    const validate: ValidateProps<any, any> =
       config.fieldConfig.extensions?.nexus?.config.validate;
 
     // if the field doesn't have an validate field,

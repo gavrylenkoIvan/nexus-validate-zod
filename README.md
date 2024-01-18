@@ -178,18 +178,7 @@ validate: {
 
 ## API
 
-##### `validate(rules: ValidationRules, args: Args, ctx: Context) => Promise<Schema | boolean>`
-
-### ValidationRules
-
-| Type    | Docs                                           | Example                                    |
-| :------ | :--------------------------------------------- | :----------------------------------------- |
-| string  | [docs](https://github.com/jquense/yup#string)  | `string().email().max(20).required()`      |
-| number  | [docs](https://github.com/jquense/yup#number)  | `number().moreThan(18).number()`           |
-| boolean | [docs](https://github.com/jquense/yup#boolean) | `boolean()`                                |
-| date    | [docs](https://github.com/jquense/yup#date)    | `date().min('2000-01-01').max(new Date())` |
-| object  | [docs](https://github.com/jquense/yup#object)  | `object({ name: string() })`               |
-| array   | [docs](https://github.com/jquense/yup#array)   | `array.min(5).of(string())`                |
+##### `validate(args: Args, ctx: Context) => Promise<ValidationSchema | boolean>`
 
 ### Args
 
@@ -203,7 +192,7 @@ t.field('createUser', {
     age: numberArg(),
   },
   // email and age will be typed as a string and a number
-  validate: (_, { email, age }) => {}
+  validate: ({ email, age }) => {}
 }
 ```
 
@@ -217,7 +206,7 @@ t.field('createUser', {
   args: {
     email: stringArg(),
   },
-  validate: async (_, { email }, { prisma }) => {
+  validate: async ({ email }, { prisma }) => {
     const count = await prisma.user.count({ where: { email } });
     if (count > 1) {
       throw new Error('email already taken');

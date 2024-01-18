@@ -5,7 +5,7 @@ import { ValidatePluginErrorConfig, ZodError } from "./error";
 import { resolver } from "./resolver";
 
 const ValidateResolverImport = printedGenTypingImport({
-  module: "nexus-validate",
+  module: "nexus-validate-zod",
   bindings: ["ValidateResolver"],
 });
 

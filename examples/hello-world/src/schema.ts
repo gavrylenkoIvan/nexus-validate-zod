@@ -6,7 +6,7 @@ import {
   intArg,
   queryType,
 } from "nexus";
-import { UserInputError, validatePlugin, ZodError } from "nexus-validate-zod";
+import { validatePlugin } from "nexus-validate-zod";
 import { z } from "zod";
 
 let USERS = [

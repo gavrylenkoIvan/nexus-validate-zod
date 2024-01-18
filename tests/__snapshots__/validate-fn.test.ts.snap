@@ -6,10 +6,3 @@ Array [
   "[ShouldWarn.id] does not have any arguments, but a validate function was passed",
 ]
 `;
-
-exports[`validatePlugin warns if validate is not a function 1`] = `
-Array [
-  "[33m%s[0m",
-  "The validate property provided to [shouldWarn] with type [ShouldWarn!]. Should be a function, saw [object]",
-]
-`;

@@ -41,6 +41,28 @@ describe("validatePlugin", () => {
       resolve: () => ({ id: 1 }),
     }),
   ];
+
+  const schemaTypesWithValidateObj = [
+    objectType({
+      name: "User",
+      definition(t) {
+        t.int("id");
+      },
+    }),
+    mutationField("validate", {
+      type: "User",
+      args: {
+        email: stringArg(),
+        id: intArg(),
+      },
+      // @ts-ignore
+      validate: {
+        email: z.string().email(),
+      },
+      resolve: () => ({ id: 1 }),
+    }),
+  ];
+
   const testSchema = makeSchema({
     outputs: false,
     types: schemaTypes,
@@ -49,7 +71,18 @@ describe("validatePlugin", () => {
     },
     plugins: [validatePlugin()],
   });
+
+  const testSchemaWithValidateObj = makeSchema({
+    outputs: false,
+    types: schemaTypesWithValidateObj,
+    nonNullDefaults: {
+      output: true,
+    },
+    plugins: [validatePlugin()],
+  });
+
   const mockCtx = { user: { id: 1 } };
+
   const testOperation = (
     mutation: string,
     schema = testSchema,
@@ -96,6 +129,7 @@ describe("validatePlugin", () => {
     const { data, errors = [] } = await testOperation(
       'validate(email: "good@email.com", id: 2)'
     );
+
     expect(data).toBeNull();
     expect(errors.length).toEqual(1);
     expect(errors[0].message).toEqual("invalid id");
@@ -136,31 +170,29 @@ describe("validatePlugin", () => {
     expect(consoleErrorSpy.mock.calls[0]).toMatchSnapshot();
   });
 
-  it("warns if validate is not a function", async () => {
-    const schema = makeSchema({
-      outputs: false,
-      nonNullDefaults: {
-        output: true,
-      },
-      plugins: [validatePlugin()],
-      types: [
-        objectType({
-          name: "ShouldWarn",
-          definition(t) {
-            t.int("id");
-          },
-        }),
-        mutationField("shouldWarn", {
-          type: "ShouldWarn",
-          // @ts-ignore
-          validate: {},
-          resolve: () => ({ id: 1 }),
-        }),
-      ],
+  it("returns error if validate field is object and validation failed", async () => {
+    const { data, errors = [] } = await testOperation(
+      'validate(email: "bad@email", id: 1)',
+      testSchemaWithValidateObj
+    );
+
+    expect(data).toBeNull();
+    expect(errors.length).toEqual(1);
+    expect(errors[0].message).toEqual("Validation failed");
+    expect(errors[0].extensions).toEqual({
+      code: "BAD_USER_INPUT",
+      invalidArgs: ["email"],
+      validationMessages: ["Invalid email"],
     });
-    const { data } = await testOperation("shouldWarn", schema);
-    expect(data?.shouldWarn).toEqual({ id: 1 });
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-    expect(consoleErrorSpy.mock.calls[0]).toMatchSnapshot();
+  });
+
+  it("returns data if validate field is object and validation passed", async () => {
+    const { data, errors = [] } = await testOperation(
+      'validate(email: "god@email.com", id: 1)',
+      testSchemaWithValidateObj
+    );
+
+    expect(errors).toEqual([]);
+    expect(data?.validate).toEqual({ id: 1 });
   });
 });

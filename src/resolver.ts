@@ -8,7 +8,7 @@ import {
 
 import { ValidatePluginConfig } from "./index";
 import { defaultFormatError } from "./error";
-import { ZodTypeAny, z } from "zod";
+import { ZodError, ZodTypeAny, z } from "zod";
 
 export type ValidateResolver<
   TypeName extends string,
@@ -57,20 +57,26 @@ export const resolver =
     }
 
     return async (root, rawArgs, ctx, info, next) => {
-      const schemaBase = await validate(rawArgs, ctx);
-      // clone args so we can transform them when validating with zod
-      let args = { ...rawArgs };
-      if (typeof schemaBase !== "undefined") {
-        const schema = z.object(schemaBase);
-        const parseResult = schema.safeParse(args);
+      try {
+        const schemaBase = await validate(rawArgs, ctx);
+        // clone args so we can transform them when validating with zod
+        let args = { ...rawArgs };
+        if (typeof schemaBase !== "undefined") {
+          const schema = z.object(schemaBase);
+          const parseResult = schema.safeParse(args);
 
-        if (!parseResult.success) {
-          throw formatError({ error: parseResult.error, args, ctx });
+          if (!parseResult.success) {
+            throw formatError({ error: parseResult.error, args, ctx });
+          }
+
+          args = parseResult.data;
         }
 
-        args = parseResult.data;
-      }
+        return next(root, args, ctx, info);
+      } catch (_error) {
+        const error = _error as Error | ZodError;
 
-      return next(root, args, ctx, info);
+        throw formatError({ error, args, ctx });
+      }
     };
   };

@@ -124,7 +124,7 @@ t.field('createUser', {
     email: stringArg(),
   },
   // use args and context to check if email is valid
-  validate(_, args, context) {
+  validate(args, context) {
     if (args.email !== context.user.email) {
       throw new UserInputError('not your email', {
         invalidArgs: ['email'],

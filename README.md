@@ -1,7 +1,7 @@
 # nexus-validate-zod
 
 [![npm](https://img.shields.io/npm/v/nexus-validate-zod)](https://www.npmjs.com/package/nexus-validate-zod)
-[![npm bundle size](https://img.shields.io/bundlephobia/min/nexus-validate)](https://bundlephobia.com/result?p=nexus-validate)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/nexus-validate)](https://bundlephobia.com/result?p=nexus-validate-zod)
 ![build-publish](https://github.com/filipstefansson/nexus-validate/workflows/build-publish/badge.svg)
 
 Add extra validation to [GraphQL Nexus](https://github.com/graphql-nexus/nexus) in an easy and expressive way.

@@ -61,7 +61,10 @@ export const resolver =
       // if validate property is ZodObject, just parse raw args with it
       return (root, rawArgs, ctx, info, next) => {
         try {
-          const args = z.object(validate as ZodRawShape).parse(rawArgs);
+          const args = z
+            .object(validate as ZodRawShape)
+            .passthrough()
+            .parse(rawArgs);
 
           return next(root, args, ctx, info);
         } catch (_error) {
@@ -82,7 +85,7 @@ export const resolver =
               if (schemaBase[k] === undefined) delete schemaBase[k];
             });
 
-            const schema = z.object(schemaBase as ZodRawShape);
+            const schema = z.object(schemaBase as ZodRawShape).passthrough();
             const parseResult = schema.parse(args);
 
             args = parseResult;

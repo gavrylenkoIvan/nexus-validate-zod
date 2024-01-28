@@ -6,7 +6,7 @@ import { resolver } from "./resolver";
 
 const ValidateResolverImport = printedGenTypingImport({
   module: "nexus-validate-zod",
-  bindings: ["ValidateResolver"],
+  bindings: ["ValidateProps"],
 });
 
 const fieldDefTypes = printedGenTyping({

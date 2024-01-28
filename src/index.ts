@@ -13,7 +13,7 @@ const fieldDefTypes = printedGenTyping({
   optional: true,
   name: "validate",
   description: "Validate mutation arguments.",
-  type: "ValidateResolver<TypeName, FieldName>",
+  type: "ValidateProps<TypeName, FieldName>",
   imports: [ValidateResolverImport],
 });
 

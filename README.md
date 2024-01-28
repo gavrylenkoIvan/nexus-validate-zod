@@ -1,8 +1,7 @@
 # nexus-validate-zod
 
 [![npm](https://img.shields.io/npm/v/nexus-validate-zod)](https://www.npmjs.com/package/nexus-validate-zod)
-[![npm bundle size](https://img.shields.io/bundlephobia/min/nexus-validate)](https://bundlephobia.com/result?p=nexus-validate)
-![build-publish](https://github.com/filipstefansson/nexus-validate/workflows/build-publish/badge.svg)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/nexus-validate-zod)](https://bundlephobia.com/result?p=nexus-validate-zod)
 
 Add extra validation to [GraphQL Nexus](https://github.com/graphql-nexus/nexus) in an easy and expressive way.
 
@@ -124,7 +123,7 @@ t.field('createUser', {
     email: stringArg(),
   },
   // use args and context to check if email is valid
-  validate(_, args, context) {
+  validate(args, context) {
     if (args.email !== context.user.email) {
       throw new UserInputError('not your email', {
         invalidArgs: ['email'],

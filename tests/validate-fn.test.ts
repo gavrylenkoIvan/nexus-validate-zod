@@ -28,6 +28,7 @@ describe("validatePlugin", () => {
       },
       // @ts-ignore
       validate: (args, ctx) => {
+        console.log(args);
         if (args.id !== ctx.user.id) {
           throw new UserInputError("Validation failed", {
             validationErrors: {
@@ -124,6 +125,7 @@ describe("validatePlugin", () => {
     const { data, errors = [] } = await testOperation(
       'validate(email: "god@email.com", id: 1)'
     );
+
     expect(errors).toEqual([]);
     expect(data?.validate).toEqual({ id: 1 });
   });

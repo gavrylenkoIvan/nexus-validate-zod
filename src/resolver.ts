@@ -54,19 +54,12 @@ export const resolver =
         );
       }
 
-      Object.keys(validate).forEach((k) => {
-        if (validate[k] === undefined) delete validate[k];
-      });
+      const schema = z.object(validate as ZodRawShape).passthrough();
 
       // if validate property is ZodObject, just parse raw args with it
       return (root, rawArgs, ctx, info, next) => {
         try {
-          const args = z
-            .object(validate as ZodRawShape)
-            .passthrough()
-            .parse(rawArgs);
-
-          return next(root, args, ctx, info);
+          return next(root, schema.parse(rawArgs), ctx, info);
         } catch (_error) {
           const error = _error as Error | ZodError;
 
@@ -79,19 +72,19 @@ export const resolver =
         try {
           const schemaBase = await validate(rawArgs, ctx);
           // clone args so we can transform them when validating with zod
-          let args = { ...rawArgs };
           if (typeof schemaBase !== "undefined") {
-            Object.keys(schemaBase).forEach((k) => {
-              if (schemaBase[k] === undefined) delete schemaBase[k];
-            });
-
-            const schema = z.object(schemaBase as ZodRawShape).passthrough();
-            const parseResult = schema.parse(args);
-
-            args = parseResult;
+            return next(
+              root,
+              z
+                .object(schemaBase as ZodRawShape)
+                .passthrough()
+                .parse(rawArgs),
+              ctx,
+              info
+            );
           }
 
-          return next(root, args, ctx, info);
+          return next(root, rawArgs, ctx, info);
         } catch (_error) {
           const error = _error as Error | ZodError;
 
